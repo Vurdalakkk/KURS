@@ -1,0 +1,6 @@
+Процессор,ОЗУ(ГБ),Производитель,Игровой,Семейство_CPU,Видеокарта,ОС,SSD(ГБ),VRAM(ГБ),Ядра
+AMD Ryzen 5 5600G,8,HP,0,Ryzen 5,Integrated,Windows 10,256,2,6
+AMD Ryzen 5 5600X,16,HP,1,Ryzen 5,NVIDIA GTX 1660,Windows 10,512,6,6
+Intel Core i7-12700K,32,Lenovo,1,Core i7,NVIDIA RTX 3080,Windows 11,1024,10,12
+AMD Ryzen 7 5800X,16,ASUS,1,Ryzen 7,AMD RX 6800,Linux,512,16,8
+Intel Core i3-12100,8,Acer,0,Core i3,Intel UHD Graphics,Windows 11,256,0,4
