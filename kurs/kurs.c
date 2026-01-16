@@ -1,4 +1,4 @@
-﻿// Необходимые библиотеки
+// Необходимые библиотеки
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <locale.h>
@@ -25,7 +25,7 @@ typedef struct {
     char os[MAX_OS_LEN];                   // Операционная система
     int ssd_size;                          // Объем SSD (ГБ)
     int vram_size;                         // Объем видеопамяти (ГБ)
-    int cpu_cores;                         // Количество ядер процессора
+    float cpu_clock_speed;                 // Тактовая частота процессора (ГГц)
 } Computer;
 
 // ПРОТОТИПЫ ФУНКЦИЙ
@@ -44,6 +44,7 @@ void add_records_to_file(void);
 // Вспомогательные функции
 void clear_input_buffer(void);
 int get_valid_int(const char* prompt, int min_val);
+float get_valid_float(const char* prompt, float min_val);
 int get_yes_no(const char* prompt);
 void print_computer_table(Computer* computers, int count);
 
@@ -193,6 +194,19 @@ int get_valid_int(const char* prompt, int min_val) {
     }
 }
 
+float get_valid_float(const char* prompt, float min_val) {
+    float value;
+    while (1) {
+        printf("%s", prompt);
+        if (scanf("%f", &value) == 1 && value >= min_val) {
+            clear_input_buffer();
+            return value;
+        }
+        printf("Ошибка! Введите число >= %.1f\n", min_val);
+        clear_input_buffer();
+    }
+}
+
 int get_yes_no(const char* prompt) {
     char input;
     while (1) {
@@ -236,7 +250,7 @@ void fill_computer_data(Computer* pc) {
 
     pc->ssd_size = get_valid_int("Объем SSD (ГБ, 0 если нет SSD): ", 0);
     pc->vram_size = get_valid_int("Объем видеопамяти (ГБ): ", 0);
-    pc->cpu_cores = get_valid_int("Количество ядер процессора: ", 1);
+    pc->cpu_clock_speed = get_valid_float("Тактовая частота процессора (ГГц): ", 0.1);
 }
 
 void print_computer_table(Computer* computers, int count) {
@@ -245,12 +259,12 @@ void print_computer_table(Computer* computers, int count) {
         return;
     }
 
-    printf("\n+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
-    printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Ядра |\n");
-    printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
+    printf("\n+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
+    printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Частота|\n");
+    printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
 
     for (int i = 0; i < count; i++) {
-        printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %4d |\n",
+        printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %6.1f |\n",
             computers[i].processor,
             computers[i].ram_size,
             computers[i].manufacturer,
@@ -260,9 +274,9 @@ void print_computer_table(Computer* computers, int count) {
             computers[i].os,
             computers[i].ssd_size,
             computers[i].vram_size,
-            computers[i].cpu_cores);
+            computers[i].cpu_clock_speed);
     }
-    printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
+    printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
 }
 
 void print_all_computers(Computer* computers, int count) {
@@ -292,13 +306,13 @@ void search_by_fields(Computer* computers, int count) {
 
         int found = 0;
         printf("\n=== РЕЗУЛЬТАТЫ ПОИСКА ПО ПРОЦЕССОРУ '%s' ===\n", processor);
-        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
-        printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Ядра |\n");
-        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
+        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
+        printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Частота|\n");
+        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
 
         for (int i = 0; i < count; i++) {
             if (strcmp(computers[i].processor, processor) == 0) {
-                printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %4d |\n",
+                printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %6.1f |\n",
                     computers[i].processor,
                     computers[i].ram_size,
                     computers[i].manufacturer,
@@ -308,18 +322,18 @@ void search_by_fields(Computer* computers, int count) {
                     computers[i].os,
                     computers[i].ssd_size,
                     computers[i].vram_size,
-                    computers[i].cpu_cores);
+                    computers[i].cpu_clock_speed);
                 found = 1;
             }
         }
 
         if (found) {
-            printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
+            printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
             printf("Найдено записей: %d\n", found);
         }
         else {
-            printf("|                                      ЗАПИСИ НЕ НАЙДЕНЫ                                                        |\n");
-            printf("+---------------------------------------------------------------------------------------------------------------+\n");
+            printf("|                                              ЗАПИСИ НЕ НАЙДЕНЫ                                                              |\n");
+            printf("+---------------------------------------------------------------------------------------------------------------------------+\n");
         }
     }
     else if (search_choice == 2) {
@@ -331,13 +345,13 @@ void search_by_fields(Computer* computers, int count) {
         const char* status = gaming ? "игровые" : "не игровые";
         int found = 0;
         printf("\n=== РЕЗУЛЬТАТЫ ПОИСКА %s КОМПЬЮТЕРОВ ===\n", status);
-        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
-        printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Ядра |\n");
-        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
+        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
+        printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Частота|\n");
+        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
 
         for (int i = 0; i < count; i++) {
             if (computers[i].is_gaming == gaming) {
-                printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %4d |\n",
+                printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %6.1f |\n",
                     computers[i].processor,
                     computers[i].ram_size,
                     computers[i].manufacturer,
@@ -347,18 +361,18 @@ void search_by_fields(Computer* computers, int count) {
                     computers[i].os,
                     computers[i].ssd_size,
                     computers[i].vram_size,
-                    computers[i].cpu_cores);
+                    computers[i].cpu_clock_speed);
                 found = 1;
             }
         }
 
         if (found) {
-            printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
+            printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
             printf("Найдено записей: %d\n", found);
         }
         else {
-            printf("|                                      ЗАПИСИ НЕ НАЙДЕНЫ                                                        |\n");
-            printf("+---------------------------------------------------------------------------------------------------------------+\n");
+            printf("|                                              ЗАПИСИ НЕ НАЙДЕНЫ                                                              |\n");
+            printf("+---------------------------------------------------------------------------------------------------------------------------+\n");
         }
     }
     else if (search_choice == 3) {
@@ -402,9 +416,9 @@ void search_by_fields(Computer* computers, int count) {
             printf("Критерий: игровой статус=%d\n", gaming);
         }
 
-        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
-        printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Ядра |\n");
-        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
+        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
+        printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Частота|\n");
+        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
 
         int found = 0;
         for (int i = 0; i < count; i++) {
@@ -416,7 +430,7 @@ void search_by_fields(Computer* computers, int count) {
                 match = 0;
 
             if (match) {
-                printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %4d |\n",
+                printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %6.1f |\n",
                     computers[i].processor,
                     computers[i].ram_size,
                     computers[i].manufacturer,
@@ -426,18 +440,18 @@ void search_by_fields(Computer* computers, int count) {
                     computers[i].os,
                     computers[i].ssd_size,
                     computers[i].vram_size,
-                    computers[i].cpu_cores);
+                    computers[i].cpu_clock_speed);
                 found = 1;
             }
         }
 
         if (found) {
-            printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
+            printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
             printf("Найдено записей: %d\n", found);
         }
         else {
-            printf("|                                      ЗАПИСИ НЕ НАЙДЕНЫ                                                        |\n");
-            printf("+---------------------------------------------------------------------------------------------------------------+\n");
+            printf("|                                              ЗАПИСИ НЕ НАЙДЕНЫ                                                              |\n");
+            printf("+---------------------------------------------------------------------------------------------------------------------------+\n");
         }
     }
     else {
@@ -452,10 +466,10 @@ void save_to_file(const char* filename, Computer* computers, int count) {
         return;
     }
 
-    fprintf(file, "Процессор,ОЗУ(ГБ),Производитель,Игровой,Семейство_CPU,Видеокарта,ОС,SSD(ГБ),VRAM(ГБ),Ядра\n");
+    fprintf(file, "Процессор,ОЗУ(ГБ),Производитель,Игровой,Семейство_CPU,Видеокарта,ОС,SSD(ГБ),VRAM(ГБ),Частота(ГГц)\n");
 
     for (int i = 0; i < count; i++) {
-        fprintf(file, "%s,%d,%s,%d,%s,%s,%s,%d,%d,%d\n",
+        fprintf(file, "%s,%d,%s,%d,%s,%s,%s,%d,%d,%.1f\n",
             computers[i].processor,
             computers[i].ram_size,
             computers[i].manufacturer,
@@ -465,7 +479,7 @@ void save_to_file(const char* filename, Computer* computers, int count) {
             computers[i].os,
             computers[i].ssd_size,
             computers[i].vram_size,
-            computers[i].cpu_cores);
+            computers[i].cpu_clock_speed);
     }
 
     fclose(file);
@@ -514,7 +528,7 @@ int load_from_file(const char* filename, Computer* computers, int max_count) {
         if (token) computers[loaded].vram_size = atoi(token);
 
         token = strtok(NULL, ",\n");
-        if (token) computers[loaded].cpu_cores = atoi(token);
+        if (token) computers[loaded].cpu_clock_speed = atof(token);
 
         loaded++;
     }
@@ -588,10 +602,10 @@ void modify_record_in_file(void) {
         printf("\n=== ИЗМЕНЕНИЕ ЗАПИСИ %d ===\n", index);
         printf("Текущие данные:\n");
 
-        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
-        printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Ядра |\n");
-        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
-        printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %4d |\n",
+        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
+        printf("| Процессор              | ОЗУ  | Производитель   | Игр.| Семейство CPU    | Видеокарта           | ОС               | SSD  | VRAM | Частота|\n");
+        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
+        printf("| %-22s | %4d | %-15s |  %d  | %-16s | %-20s | %-16s | %4d | %4d | %6.1f |\n",
             temp_computers[index].processor,
             temp_computers[index].ram_size,
             temp_computers[index].manufacturer,
@@ -601,8 +615,8 @@ void modify_record_in_file(void) {
             temp_computers[index].os,
             temp_computers[index].ssd_size,
             temp_computers[index].vram_size,
-            temp_computers[index].cpu_cores);
-        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+------+\n");
+            temp_computers[index].cpu_clock_speed);
+        printf("+------------------------+------+-----------------+-----+------------------+----------------------+------------------+------+------+--------+\n");
 
         printf("\nВведите новые данные:\n");
         fill_computer_data(&temp_computers[index]);
